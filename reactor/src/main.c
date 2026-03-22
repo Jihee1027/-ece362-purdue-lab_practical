@@ -24,12 +24,12 @@ void grader();
 
 // Make sure to set your pins if you are using this on your own breadboard.
 // For the Platform Test Board, these are the correct pin numbers.
-// const int SPI_7SEG_SCK = 14;
-// const int SPI_7SEG_CSn = 13;
-// const int SPI_7SEG_TX = 15;
-const int SPI_7SEG_SCK = 18;
-const int SPI_7SEG_CSn = 17;
-const int SPI_7SEG_TX = 19;
+const int SPI_7SEG_SCK = 14;
+const int SPI_7SEG_CSn = 13;
+const int SPI_7SEG_TX = 15;
+// const int SPI_7SEG_SCK = 18;
+// const int SPI_7SEG_CSn = 17;
+// const int SPI_7SEG_TX = 19;
 // NOT NEEDED since we are not using LCD/OLED in this practical.
 // But it needs to be defined to avoid compiler errors.
 const int SPI_DISP_SCK = -1;
@@ -139,8 +139,8 @@ void init_sevenseg_spi() {
     gpio_set_function(SPI_7SEG_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPI_7SEG_TX,  GPIO_FUNC_SPI);
     gpio_set_function(SPI_7SEG_CSn, GPIO_FUNC_SPI);
-    spi_init(spi0, 125000);
-    spi_set_format(spi0, 16, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+    spi_init(spi1, 125000);
+    spi_set_format(spi1, 16, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
 }
 
 //////////////////////////////////////////////
@@ -195,8 +195,8 @@ void init_sevenseg_dma() {
     temp |= DMA_CH0_CTRL_TRIG_RING_SEL_BITS;
     temp |= 4u << DMA_CH0_CTRL_TRIG_RING_SIZE_LSB;
 
-    // SPI0 TX DREQ
-    temp |= (DREQ_SPI0_TX << DMA_CH0_CTRL_TRIG_TREQ_SEL_LSB);
+    // SPI1 TX DREQ
+    temp |= (DREQ_SPI1_TX << DMA_CH0_CTRL_TRIG_TREQ_SEL_LSB);
 
     // enable
     temp |= DMA_CH0_CTRL_TRIG_EN_BITS;
