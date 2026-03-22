@@ -57,15 +57,15 @@ void reaction_isr() {
     uint32_t ev26 = gpio_get_irq_event_mask(26);
 
     if (ev21 & GPIO_IRQ_EDGE_RISE) {
-       gpio_acknowledge_irq(21, GPIO_IRQ_EDGE_RISE);
-       last_pressed = 21;
-       reactor_state = RESULT;
+        gpio_acknowledge_irq(21, GPIO_IRQ_EDGE_RISE);
+        last_pressed = 21;
+        reactor_state = RESULT;
     }
 
     if (ev26 & GPIO_IRQ_EDGE_RISE) {
-       gpio_acknowledge_irq(26, GPIO_IRQ_EDGE_RISE);
-       last_pressed = 26;
-       reactor_state = RESULT;
+        gpio_acknowledge_irq(26, GPIO_IRQ_EDGE_RISE);
+        last_pressed = 26;
+        reactor_state = RESULT;
     }
 }
 
@@ -75,9 +75,12 @@ void init_reaction_irq() {
     gpio_init(21);                 
     gpio_set_dir(21, GPIO_IN);     
     gpio_set_function(21, GPIO_FUNC_SIO);
+    gpio_pull_down(21);
+
     gpio_init(26);                 
     gpio_set_dir(26, GPIO_IN);     
     gpio_set_function(26, GPIO_FUNC_SIO);
+    gpio_pull_down(26);
 
     // output
     gpio_init(37);                 
@@ -94,18 +97,15 @@ void init_reaction_irq() {
     gpio_put(38, 1);
     gpio_put(39, 1);
 
-    // To ISR
+    gpio_acknowledge_irq(21, GPIO_IRQ_EDGE_RISE);
+    gpio_acknowledge_irq(26, GPIO_IRQ_EDGE_RISE);
+
     uint32_t mask = (1u << 21) | (1u << 26);
     gpio_add_raw_irq_handler_masked(mask, reaction_isr);
 
-    // Rising edge IRQ
     gpio_set_irq_enabled(21, GPIO_IRQ_EDGE_RISE, true);
     gpio_set_irq_enabled(26, GPIO_IRQ_EDGE_RISE, true);
 
-    // Dormant Wake up IRQ
-    gpio_set_dormant_irq_enabled(26, GPIO_IRQ_EDGE_RISE, true);
-
-    // IRQ enable
     irq_set_enabled(IO_IRQ_BANK0, true);
 }
 
@@ -179,7 +179,7 @@ void init_sevenseg_dma() {
     // fill in
     dma_channel_hw_t *ch = &dma_hw->ch[1];
     ch->read_addr = (uintptr_t)message;
-    ch->write_addr = (uintptr_t)&spi0_hw->dr;
+    ch->write_addr = (uintptr_t)&spi1_hw->dr;
     // Set transfer count to 8 with TRIGGER_SELF mode (mode=1) for infinite repeat
     ch->transfer_count = (1u << DMA_CH0_TRANS_COUNT_MODE_LSB) | 8;
     
@@ -192,7 +192,7 @@ void init_sevenseg_dma() {
     temp |= DMA_CH0_CTRL_TRIG_INCR_READ_BITS;
 
     // ring on read addr, wrap every 16 bytes => 4 bits (2^4 = 16 bytes)
-    temp |= DMA_CH0_CTRL_TRIG_RING_SEL_BITS;
+    // temp |= DMA_CH0_CTRL_TRIG_RING_SEL_BITS;
     temp |= 4u << DMA_CH0_CTRL_TRIG_RING_SIZE_LSB;
 
     // SPI1 TX DREQ
@@ -213,7 +213,7 @@ void init_sevenseg_dma() {
 int main()
 {
     stdio_init_all();
-    // grader();
+    grader();
     init_reaction_irq();
     init_sevenseg_spi();
     init_sevenseg_dma();
